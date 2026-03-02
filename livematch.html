@@ -182,19 +182,26 @@ html,body{
 /* ── Top Bar Over Panels ── */
 .top-over-panel{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;padding:4px 8px;position:relative;overflow:hidden;
+  gap:3px;padding:4px 14px 4px 8px;position:relative;overflow:visible;
 }
 .top-over-panel.last-over{
-  background:linear-gradient(120deg,rgba(0,50,180,0.18) 0%,transparent 70%);
-  border-right:1px solid rgba(0,100,255,0.15);
+  background:linear-gradient(135deg,#e91e8c 0%,#c2185b 50%,#ad1457 100%);
+  /* Right side parabolic: bulges inward (concave on right) */
+  clip-path: polygon(0% 0%, 88% 0%, 100% 18%, 100% 50%, 100% 82%, 88% 100%, 0% 100%);
+  padding-right:18px;
+  box-shadow:4px 0 18px rgba(233,30,140,0.45);
 }
 .top-over-panel.curr-over{
-  background:linear-gradient(240deg,rgba(200,50,0,0.18) 0%,transparent 70%);
-  border-left:1px solid rgba(255,0,40,0.15);
+  background:linear-gradient(135deg,#ad1457 0%,#c2185b 50%,#e91e8c 100%);
+  /* Left side parabolic: bulges inward (concave on left) */
+  clip-path: polygon(12% 0%, 100% 0%, 100% 100%, 12% 100%, 0% 82%, 0% 50%, 0% 18%);
+  padding-left:18px;
+  box-shadow:-4px 0 18px rgba(233,30,140,0.45);
 }
 .top-ov-lbl{
   font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;
-  letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;
+  letter-spacing:2px;color:rgba(255,255,255,0.95);text-transform:uppercase;
+  text-shadow:0 1px 4px rgba(0,0,0,0.5);
 }
 .top-ov-balls{display:flex;gap:3px;align-items:center;flex-wrap:wrap;justify-content:center;}
 .tob{
@@ -296,8 +303,8 @@ html,body{
   box-shadow:0 0 0 1px rgba(0,207,255,0.2),0 0 12px rgba(0,207,255,0.55),0 4px 14px rgba(0,0,0,0.85);}
 .sz-wk .tok-ring{width:40px;height:40px;border:2px solid var(--purple);
   box-shadow:0 0 0 1px rgba(124,58,237,0.2),0 0 10px rgba(124,58,237,0.5),0 4px 14px rgba(0,0,0,0.85);}
-.sz-ump .tok-ring{width:34px;height:34px;border:2px solid rgba(255,255,255,0.55);
-  box-shadow:0 0 8px rgba(255,255,255,0.15),0 4px 14px rgba(0,0,0,0.85);}
+.sz-ump .tok-ring{width:68px;height:68px;border:2.5px solid rgba(255,255,255,0.75);
+  box-shadow:0 0 14px rgba(255,255,255,0.3),0 4px 14px rgba(0,0,0,0.85);}
 .sz-field .tok-ring{width:34px;height:34px;border:2px solid rgba(255,255,255,0.35);
   box-shadow:0 4px 10px rgba(0,0,0,0.8);}
 
@@ -828,21 +835,21 @@ html,body{
 const GCX=640, GCY=410, GRX=295, GRY=225;
 
 const FIELD_POS = [
-  // ── BATTING END (bottom wicket y≈407) ──
-  // Strike batter: just in front of bottom stumps (facing bowler = slightly above)
-  { id:'bat1',  x:GCX,    y:GCY+72,  sz:'sz-bat',   anim:'anim-bat'  },
-  // Wicket keeper: behind bottom stumps
-  { id:'wk',    x:GCX,    y:GCY+115, sz:'sz-wk',    anim:'anim-wk'   },
+  // ── BATTING END (bottom wicket stumps at y≈407 in SVG → ~GCY+65 in pixels) ──
+  // Strike batter: IN FRONT of bottom stumps = above the stumps (smaller y = higher up = facing bowler)
+  { id:'bat1',  x:GCX,    y:GCY+42,  sz:'sz-bat',   anim:'anim-bat'  },
+  // Wicket keeper: BEHIND bottom stumps (below = larger y)
+  { id:'wk',    x:GCX,    y:GCY+108, sz:'sz-wk',    anim:'anim-wk'   },
   // Leg umpire: square leg near batting end
-  { id:'ump1',  x:GCX-72, y:GCY+60,  sz:'sz-ump',   anim:''          },
+  { id:'ump1',  x:GCX-82, y:GCY+48,  sz:'sz-ump',   anim:''          },
 
-  // ── BOWLING END (top wicket y≈212) ──
-  // Non-strike batter: just in front of top stumps (on batting side = slightly below crease)
-  { id:'bat2',  x:GCX+22, y:GCY-75,  sz:'sz-bat',   anim:'anim-bat'  },
-  // Bowler: running in from behind top stumps toward centre
-  { id:'bowl',  x:GCX,    y:GCY-105, sz:'sz-bowl',  anim:'anim-bowl' },
-  // On-field umpire: behind bowling stumps / off side
-  { id:'ump2',  x:GCX-2,  y:GCY-148, sz:'sz-ump',   anim:''          },
+  // ── BOWLING END (top wicket stumps at y≈212 in SVG → ~GCY-88 in pixels) ──
+  // Non-strike batter: IN FRONT of top stumps = below the stumps (larger y = lower = facing bowler side)
+  { id:'bat2',  x:GCX+24, y:GCY-60,  sz:'sz-bat',   anim:'anim-bat'  },
+  // Bowler: running in from BEHIND top stumps (further up = smaller y)
+  { id:'bowl',  x:GCX,    y:GCY-118, sz:'sz-bowl',  anim:'anim-bowl' },
+  // On-field umpire: behind bowling end stumps
+  { id:'ump2',  x:GCX-4,  y:GCY-162, sz:'sz-ump',   anim:''          },
 
   // 8 fielders in ring
   { id:'f1',    x:GCX-256, y:GCY-28,  sz:'sz-field', anim:'' },
@@ -1313,6 +1320,299 @@ async function poll(){
 
 poll();
 setInterval(poll, 2500);
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FIELD POSITION CONTROLLER — drag tokens to reposition
+═══════════════════════════════════════════════════════════════ -->
+<style>
+#posController{
+  position:fixed;bottom:16px;right:16px;z-index:9999;
+  background:linear-gradient(135deg,rgba(5,10,30,0.97),rgba(2,6,18,0.99));
+  border:1px solid rgba(255,215,0,0.35);border-radius:12px;
+  padding:10px 14px;min-width:220px;max-width:260px;
+  box-shadow:0 8px 40px rgba(0,0,0,0.8),0 0 0 1px rgba(255,255,255,0.04) inset;
+  font-family:'Rajdhani',sans-serif;color:#fff;
+  transition:opacity .3s;user-select:none;
+}
+#posController.hidden{opacity:0;pointer-events:none;}
+#posCtrlHeader{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:8px;border-bottom:1px solid rgba(255,215,0,0.2);padding-bottom:6px;
+}
+#posCtrlTitle{
+  font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;
+  color:var(--gold);letter-spacing:2px;
+}
+#posCtrlToggle{
+  font-size:10px;cursor:pointer;padding:2px 8px;border-radius:20px;
+  background:rgba(255,215,0,0.15);border:1px solid rgba(255,215,0,0.3);
+  color:var(--gold);letter-spacing:1px;
+}
+.pc-row{
+  display:flex;align-items:center;gap:6px;margin:4px 0;
+}
+.pc-lbl{
+  font-family:'Teko',sans-serif;font-size:13px;font-weight:600;
+  min-width:68px;color:rgba(255,255,255,0.8);letter-spacing:0.5px;
+}
+.pc-lbl.bat-lbl {color:#FFD700;}
+.pc-lbl.bowl-lbl{color:#00CFFF;}
+.pc-lbl.wk-lbl  {color:#C084FC;}
+.pc-lbl.ump-lbl {color:rgba(255,255,255,0.9);}
+.pc-lbl.f-lbl   {color:rgba(150,255,150,0.85);}
+.pc-btn{
+  padding:2px 7px;border-radius:5px;cursor:pointer;font-size:11px;font-family:'Teko';
+  border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.07);
+  color:#fff;transition:background .15s;
+}
+.pc-btn:hover{background:rgba(255,255,255,0.16);}
+.pc-btn.active{background:rgba(255,215,0,0.25);border-color:rgba(255,215,0,0.6);color:var(--gold);}
+.pc-coord{font-size:10px;color:rgba(255,255,255,0.35);min-width:72px;text-align:right;font-family:'Orbitron';}
+#pcResetAll{
+  margin-top:8px;width:100%;padding:5px;border-radius:7px;cursor:pointer;
+  background:linear-gradient(135deg,rgba(232,0,29,0.3),rgba(100,0,0,0.4));
+  border:1px solid rgba(232,0,29,0.4);color:#fff;font-family:'Orbitron';
+  font-size:9px;letter-spacing:2px;transition:background .2s;
+}
+#pcResetAll:hover{background:linear-gradient(135deg,rgba(232,0,29,0.55),rgba(100,0,0,0.65));}
+
+/* Make tokens draggable visual cue */
+.ftok.drag-enabled{cursor:grab !important;}
+.ftok.drag-enabled:active{cursor:grabbing !important;}
+.ftok.drag-active .tok-ring{
+  outline:2px dashed var(--gold) !important;
+  box-shadow:0 0 20px rgba(255,215,0,0.9) !important;
+}
+</style>
+
+<div id="posController">
+  <div id="posCtrlHeader">
+    <span id="posCtrlTitle">⚽ FIELD POSITIONS</span>
+    <span id="posCtrlToggle">HIDE</span>
+  </div>
+  <div id="pcRows"></div>
+  <div style="display:flex;gap:6px;margin-top:6px;">
+    <button id="pcDragToggle" class="pc-btn" style="flex:1;background:rgba(0,200,100,0.12);border-color:rgba(0,200,100,0.3);color:#00E676;font-size:11px;">🖐 DRAG MODE: OFF</button>
+  </div>
+  <button id="pcResetAll">↺ RESET ALL POSITIONS</button>
+</div>
+
+<button id="posCtrlShowBtn" style="
+  position:fixed;bottom:16px;right:16px;z-index:9999;display:none;
+  padding:6px 14px;border-radius:20px;cursor:pointer;
+  background:linear-gradient(135deg,rgba(255,215,0,0.25),rgba(255,107,0,0.25));
+  border:1px solid rgba(255,215,0,0.5);color:var(--gold);
+  font-family:'Orbitron';font-size:9px;letter-spacing:2px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.6);
+">⚽ POSITIONS</button>
+
+<script>
+(function(){
+  // Default positions (mirrors FIELD_POS above)
+  const defaults = {
+    bat1:  {x:GCX,    y:GCY+42 },
+    wk:    {x:GCX,    y:GCY+108},
+    ump1:  {x:GCX-82, y:GCY+48 },
+    bat2:  {x:GCX+24, y:GCY-60 },
+    bowl:  {x:GCX,    y:GCY-118},
+    ump2:  {x:GCX-4,  y:GCY-162},
+    f1:    {x:GCX-256,y:GCY-28 },
+    f2:    {x:GCX+256,y:GCY-28 },
+    f3:    {x:GCX-272,y:GCY+95 },
+    f4:    {x:GCX+272,y:GCY+95 },
+    f5:    {x:GCX-185,y:GCY-182},
+    f6:    {x:GCX+185,y:GCY-182},
+    f7:    {x:GCX-140,y:GCY+186},
+    f8:    {x:GCX+140,y:GCY+186},
+  };
+
+  const overrides = {}; // live position overrides
+  let dragMode = false;
+  let dragging = null; // {id, offX, offY}
+
+  const labels = {
+    bat1:'⚡ STRIKER', bat2:'🏏 NON-STR', bowl:'🎳 BOWLER',
+    wk:'🧤 WK', ump1:'🕴 UMP1', ump2:'🕴 UMP2',
+    f1:'F1',f2:'F2',f3:'F3',f4:'F4',f5:'F5',f6:'F6',f7:'F7',f8:'F8',
+  };
+  const lblClass = {
+    bat1:'bat-lbl',bat2:'bat-lbl',bowl:'bowl-lbl',
+    wk:'wk-lbl',ump1:'ump-lbl',ump2:'ump-lbl',
+    f1:'f-lbl',f2:'f-lbl',f3:'f-lbl',f4:'f-lbl',f5:'f-lbl',f6:'f-lbl',f7:'f-lbl',f8:'f-lbl',
+  };
+
+  function getPos(id){
+    return overrides[id] || {...defaults[id]};
+  }
+
+  // Expose for renderField to use overrides
+  window.getPosOverride = getPos;
+
+  function moveToken(id, x, y){
+    overrides[id] = {x, y};
+    const el = document.getElementById('ft_'+id);
+    if(el){ el.style.left=x+'px'; el.style.top=y+'px'; }
+    updateCoord(id, x, y);
+  }
+
+  function updateCoord(id, x, y){
+    const coord = document.getElementById('pc_coord_'+id);
+    if(coord) coord.textContent = Math.round(x-GCX)+','+(Math.round(y-GCY));
+  }
+
+  // Build controller rows
+  function buildRows(){
+    const container = document.getElementById('pcRows');
+    container.innerHTML = '';
+    Object.keys(defaults).forEach(id => {
+      const pos = getPos(id);
+      const row = document.createElement('div');
+      row.className = 'pc-row';
+      row.innerHTML = `
+        <span class="pc-lbl ${lblClass[id]||''}">${labels[id]||id}</span>
+        <button class="pc-btn" onclick="pcMove('${id}',-10,0)">◀</button>
+        <button class="pc-btn" onclick="pcMove('${id}',10,0)">▶</button>
+        <button class="pc-btn" onclick="pcMove('${id}',0,-10)">▲</button>
+        <button class="pc-btn" onclick="pcMove('${id}',0,10)">▼</button>
+        <span class="pc-coord" id="pc_coord_${id}">${Math.round(pos.x-GCX)},${Math.round(pos.y-GCY)}</span>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  window.pcMove = function(id, dx, dy){
+    const p = getPos(id);
+    moveToken(id, p.x+dx, p.y+dy);
+  };
+
+  // ── Drag mode ──
+  function enableDrag(){
+    document.querySelectorAll('.ftok').forEach(el=>{
+      el.classList.add('drag-enabled');
+    });
+    document.addEventListener('mousedown', onDragStart);
+    document.addEventListener('mousemove', onDragMove);
+    document.addEventListener('mouseup',   onDragEnd);
+    document.addEventListener('touchstart', onTouchStart, {passive:false});
+    document.addEventListener('touchmove',  onTouchMove,  {passive:false});
+    document.addEventListener('touchend',   onTouchEnd);
+  }
+
+  function disableDrag(){
+    document.querySelectorAll('.ftok').forEach(el=>{
+      el.classList.remove('drag-enabled','drag-active');
+    });
+    document.removeEventListener('mousedown', onDragStart);
+    document.removeEventListener('mousemove', onDragMove);
+    document.removeEventListener('mouseup',   onDragEnd);
+    document.removeEventListener('touchstart', onTouchStart);
+    document.removeEventListener('touchmove',  onTouchMove);
+    document.removeEventListener('touchend',   onTouchEnd);
+  }
+
+  function getTokenId(el){
+    let node = el;
+    while(node && node !== document.body){
+      if(node.id && node.id.startsWith('ft_')) return node.id.replace('ft_','');
+      node = node.parentElement;
+    }
+    return null;
+  }
+
+  function onDragStart(e){
+    const id = getTokenId(e.target);
+    if(!id) return;
+    const el = document.getElementById('ft_'+id);
+    if(!el) return;
+    const p = getPos(id);
+    dragging = {id, offX: e.clientX - p.x, offY: e.clientY - p.y};
+    el.classList.add('drag-active');
+    e.preventDefault();
+  }
+
+  function onDragMove(e){
+    if(!dragging) return;
+    const x = e.clientX - dragging.offX;
+    const y = e.clientY - dragging.offY;
+    moveToken(dragging.id, x, y);
+  }
+
+  function onDragEnd(){
+    if(!dragging) return;
+    const el = document.getElementById('ft_'+dragging.id);
+    if(el) el.classList.remove('drag-active');
+    dragging = null;
+  }
+
+  function onTouchStart(e){
+    const t = e.touches[0];
+    const id = getTokenId(t.target);
+    if(!id) return;
+    const el = document.getElementById('ft_'+id);
+    if(!el) return;
+    const p = getPos(id);
+    dragging = {id, offX: t.clientX - p.x, offY: t.clientY - p.y};
+    el.classList.add('drag-active');
+    e.preventDefault();
+  }
+
+  function onTouchMove(e){
+    if(!dragging) return;
+    const t = e.touches[0];
+    moveToken(dragging.id, t.clientX - dragging.offX, t.clientY - dragging.offY);
+    e.preventDefault();
+  }
+
+  function onTouchEnd(){ onDragEnd(); }
+
+  // Patch renderField so it respects overrides after rebuild
+  const _origRenderField = renderField;
+  window.renderField = function(d){
+    _origRenderField(d);
+    // Apply saved overrides after rebuild
+    Object.keys(overrides).forEach(id => {
+      const el = document.getElementById('ft_'+id);
+      if(el){ el.style.left=overrides[id].x+'px'; el.style.top=overrides[id].y+'px'; }
+      if(dragMode) el && el.classList.add('drag-enabled');
+    });
+    buildRows();
+  };
+
+  // Toggle controller visibility
+  const ctrl = document.getElementById('posController');
+  const showBtn = document.getElementById('posCtrlShowBtn');
+  document.getElementById('posCtrlToggle').onclick = function(){
+    ctrl.classList.add('hidden');
+    showBtn.style.display = 'block';
+  };
+  showBtn.onclick = function(){
+    ctrl.classList.remove('hidden');
+    showBtn.style.display = 'none';
+  };
+
+  // Drag toggle button
+  document.getElementById('pcDragToggle').onclick = function(){
+    dragMode = !dragMode;
+    this.textContent = dragMode ? '🖐 DRAG MODE: ON' : '🖐 DRAG MODE: OFF';
+    this.style.background = dragMode ? 'rgba(0,200,100,0.28)' : 'rgba(0,200,100,0.12)';
+    this.style.color = dragMode ? '#00E676' : '#00E676';
+    dragMode ? enableDrag() : disableDrag();
+  };
+
+  // Reset all
+  document.getElementById('pcResetAll').onclick = function(){
+    Object.keys(overrides).forEach(id => delete overrides[id]);
+    Object.keys(defaults).forEach(id => {
+      const el = document.getElementById('ft_'+id);
+      if(el){ el.style.left=defaults[id].x+'px'; el.style.top=defaults[id].y+'px'; }
+      updateCoord(id, defaults[id].x, defaults[id].y);
+    });
+  };
+
+  // Init rows
+  buildRows();
+})();
 </script>
 </body>
 </html>
