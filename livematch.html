@@ -684,7 +684,11 @@ table.sct tr:hover td{background:rgba(255,200,0,.04);}
     <div class="ms-also" style="margin-top:14px;">
       <span class="ms-also-lbl">Or use server: fetch from /data/[matchId] endpoint</span>
     </div>
+    <div style="margin-top:10px;text-align:center;">
+      <span style="font-family:Oswald;font-size:10px;color:rgba(255,255,255,.2);cursor:pointer;" onclick="try{localStorage.removeItem('sa67_matchId');localStorage.removeItem('sa67_squadUrl');}catch(e){} this.textContent='✓ Cleared';">Clear saved match</span>
+    </div>
   </div>
+</div>
 </div>
 
 <!-- PLAYING 11 -->
@@ -1565,6 +1569,10 @@ function startMatch(){
   document.getElementById('admMatchId').value=currentMatchId;
   document.getElementById('admSquadUrl').value=currentSquadUrl;
   document.getElementById('matchSetup').style.display='none';
+  // Save to localStorage so it auto-loads next time
+  try{localStorage.setItem('sa67_matchId',currentMatchId);if(currentSquadUrl)localStorage.setItem('sa67_squadUrl',currentSquadUrl);}catch(e){}
+  // Update URL so refresh keeps the match
+  try{const u=new URL(window.location.href);u.searchParams.set('match',currentMatchId);if(currentSquadUrl)u.searchParams.set('squad',currentSquadUrl);history.replaceState(null,'',u.toString());}catch(e){}
   if(currentSquadUrl)fetchPlaying11(currentSquadUrl);
   startPolling();
 }
@@ -1575,6 +1583,9 @@ function updateMatchId(){
   const m=(mid+'').match(/\d+/);
   currentMatchId=m?m[0]:'';
   currentSquadUrl=squad||'';
+  // Persist so next page load skips setup screen
+  try{localStorage.setItem('sa67_matchId',currentMatchId);if(currentSquadUrl)localStorage.setItem('sa67_squadUrl',currentSquadUrl);}catch(e){}
+  try{const u=new URL(window.location.href);u.searchParams.set('match',currentMatchId);if(currentSquadUrl)u.searchParams.set('squad',currentSquadUrl);history.replaceState(null,'',u.toString());}catch(e){}
   if(currentSquadUrl)fetchPlaying11(currentSquadUrl);
   // Reset poll interval so new match is fetched immediately
   if(_pollInterval){clearInterval(_pollInterval);_pollInterval=null;}
@@ -2200,7 +2211,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){closeAdm();closeIntro();closeP11();closeH2H();closeVenue();closeSC();closeWW();}
 });
 
-// Check if coming from server (overlay?match=ID)
+// Check if coming from server (overlay?match=ID) OR restore from localStorage
 (function(){
   const url=new URL(window.location.href);
   const mid=url.searchParams.get('match');
@@ -2210,6 +2221,26 @@ document.addEventListener('keydown',e=>{
     currentSquadUrl=squad;
     document.getElementById('matchSetup').style.display='none';
     if(currentSquadUrl)fetchPlaying11(currentSquadUrl);
+  } else {
+    // Try localStorage fallback — auto-resume last match without showing setup screen
+    try{
+      const savedId=localStorage.getItem('sa67_matchId')||'';
+      const savedSquad=localStorage.getItem('sa67_squadUrl')||'';
+      if(savedId){
+        currentMatchId=savedId;
+        currentSquadUrl=savedSquad;
+        document.getElementById('matchSetup').style.display='none';
+        // Pre-fill admin panel
+        const ai=document.getElementById('admMatchId');if(ai)ai.value=savedId;
+        const as=document.getElementById('admSquadUrl');if(as)as.value=savedSquad;
+        // Update URL so it's bookmarkable
+        try{const u=new URL(window.location.href);u.searchParams.set('match',savedId);if(savedSquad)u.searchParams.set('squad',savedSquad);history.replaceState(null,'',u.toString());}catch(e){}
+        if(currentSquadUrl)fetchPlaying11(currentSquadUrl);
+      } else {
+        // No saved match — pre-fill the setup input if there's anything in localStorage
+        const inp=document.getElementById('msMatchId');if(inp&&savedId)inp.value=savedId;
+      }
+    }catch(e){}
   }
   // Start polling if we have a match ID — either from URL param or baked in by server
   if(currentMatchId) startPolling();
