@@ -97,20 +97,49 @@ def index():
 def overlay():
     """The OBS overlay page. ?match=12345"""
     match_id = request.args.get("match", "").strip()
+    squad_url = request.args.get("squad", "").strip()
     m = re.search(r'\d+', match_id)
     if not m:
         return "Missing ?match=ID parameter. Example: /overlay?match=12345", 400
     match_id = m.group()
     ensure_scraper(match_id)
-    # Serve the overlay HTML with the match_id baked in
-    with open(os.path.join(os.path.dirname(__file__), "livematch.html"), encoding="utf-8") as f:
-        html = f.read()
+    # Try livematch_v21.html first, fall back to livematch.html
+    base_dir = os.path.dirname(__file__)
+    for fname in ("livematch_v21.html", "livematch.html"):
+        fpath = os.path.join(base_dir, fname)
+        if os.path.exists(fpath):
+            with open(fpath, encoding="utf-8") as f:
+                html = f.read()
+            break
+    else:
+        return "Overlay HTML file not found", 500
     # Patch the data.json fetch URL to use our API endpoint
     html = html.replace(
         "fetch('data.json?t='+Date.now())",
         f"fetch('/data/{match_id}?t='+Date.now())"
     )
-    return html
+    # CRITICAL FIX: inject match ID directly so setup screen never appears
+    inject = f"""
+<script>
+// Injected by server — skip setup screen entirely
+(function(){{
+  window._SERVER_MATCH_ID = '{match_id}';
+  window._SERVER_SQUAD_URL = '{squad_url}';
+}})();
+</script>"""
+    html = html.replace("</head>", inject + "\n</head>", 1)
+    # Also replace the startup check so it always uses the server-injected ID
+    html = html.replace(
+        "// Check if coming from server (overlay?match=ID)",
+        "// Match ID injected by server — setup screen hidden immediately"
+    )
+    html = html.replace(
+        "const url=new URL(window.location.href);",
+        "const url=new URL(window.location.href); if(window._SERVER_MATCH_ID){currentMatchId=window._SERVER_MATCH_ID;currentSquadUrl=window._SERVER_SQUAD_URL||'';document.getElementById('matchSetup').style.display='none';if(currentSquadUrl)fetchPlaying11(currentSquadUrl);startPolling();return;}"
+    )
+    resp = Response(html, mimetype="text/html")
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
 
 @app.route("/data/<match_id>")
 def data_endpoint(match_id):
